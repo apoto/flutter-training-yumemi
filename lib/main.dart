@@ -3,7 +3,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:yumemi_weather/yumemi_weather.dart';
 
 void main() {
-  runApp(MainApp());
+  runApp(const MainApp());
 }
 
 class MainApp extends StatefulWidget {
@@ -21,7 +21,6 @@ class _MainAppState extends State<MainApp> {
   void getWeather() {
     final yumemiWeather = YumemiWeather();
     final weatherCondition = yumemiWeather.fetchSimpleWeather();
-    print('Weather Condition: $weatherCondition'); // "sunny"
     setState(() {
       _weather = weatherCondition;
     });
