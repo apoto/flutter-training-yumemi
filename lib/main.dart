@@ -1,11 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:yumemi_weather/yumemi_weather.dart';
 
 void main() {
-  runApp(const MainApp());
+  runApp(MainApp());
 }
 
-class MainApp extends StatelessWidget {
-  const MainApp({super.key});
+class MainApp extends StatefulWidget {
+  const MainApp({
+    super.key,
+  });
+
+  @override
+  State<MainApp> createState() => _MainAppState();
+}
+
+class _MainAppState extends State<MainApp> {
+  String _weather = '';
+
+  void getWeather() {
+    final yumemiWeather = YumemiWeather();
+    final weatherCondition = yumemiWeather.fetchSimpleWeather();
+    print('Weather Condition: $weatherCondition'); // "sunny"
+    setState(() {
+      _weather = weatherCondition;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,14 +40,16 @@ class MainApp extends StatelessWidget {
                 Flexible(
                   child: Container(),
                 ),
-                const Column(
+                Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     AspectRatio(
                       aspectRatio: 1,
-                      child: Placeholder(),
+                      child: _weather != ''
+                          ? SvgPicture.asset('assets/$_weather.svg')
+                          : const Placeholder(),
                     ),
-                    Padding(
+                    const Padding(
                       padding: EdgeInsets.symmetric(vertical: 16),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -65,7 +87,7 @@ class MainApp extends StatelessWidget {
                               ),
                             ),
                             TextButton(
-                              onPressed: () {},
+                              onPressed: getWeather,
                               child: const Text(
                                 'Reload',
                                 textAlign: TextAlign.center,
