@@ -15,11 +15,36 @@ class _MainAppState extends State<WeatherView> {
   String _weather = '';
 
   void getWeather() {
-    final yumemiWeather = YumemiWeather();
-    final weatherCondition = yumemiWeather.fetchSimpleWeather();
-    setState(() {
-      _weather = weatherCondition;
-    });
+    try {
+      final weatherCondition = YumemiWeather().fetchThrowsWeather('tokyo');
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _weather = weatherCondition;
+      });
+    } on YumemiWeatherError catch (error) {
+      if (!mounted) {
+        return;
+      }
+      showDialog<void>(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('仮のテキスト'),
+            content: Text(error.toString()),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    }
   }
 
   @override
