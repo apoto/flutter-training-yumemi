@@ -2,6 +2,9 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:flutter_training/json/weather_request.dart';
+import 'package:flutter_training/json/weather_response.dart';
+
 import 'package:yumemi_weather/yumemi_weather.dart';
 
 class WeatherView extends StatefulWidget {
@@ -20,21 +23,23 @@ class _MainAppState extends State<WeatherView> {
 
   void getWeather() {
     try {
-      const requestJsonString = '''
-        {
-          "area": "tokyo",
-          "date": "2020-04-01T12:00:00+09:00"
-        }''';
-      final jsonString = YumemiWeather().fetchWeather(requestJsonString);
-      final weatherCondition = jsonDecode(jsonString) as Map<String, dynamic>;
+      final requestString =
+          WeatherRequest(area: 'tokyo', date: '2020-04-01T12:00:00+09:00');
+      final requestJsonString = jsonEncode(requestString.toJson());
+      final responseJsonString =
+          YumemiWeather().fetchWeather(requestJsonString);
+      final responseJson =
+          jsonDecode(responseJsonString) as Map<String, dynamic>;
 
       if (!mounted) {
         return;
       }
+      final weatherCondition = WeatherResponse.fromJson(responseJson);
+
       setState(() {
-        _weather = weatherCondition['weather_condition'] as String;
-        _maxTemperature = weatherCondition['max_temperature'] as int;
-        _minTemperature = weatherCondition['min_temperature'] as int;
+        _weather = weatherCondition.weatherCondition;
+        _maxTemperature = weatherCondition.maxTemperature;
+        _minTemperature = weatherCondition.minTemperature;
       });
     } on YumemiWeatherError catch (error) {
       if (!mounted) {
