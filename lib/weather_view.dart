@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:yumemi_weather/yumemi_weather.dart';
@@ -13,15 +15,26 @@ class WeatherView extends StatefulWidget {
 
 class _MainAppState extends State<WeatherView> {
   String _weather = '';
+  int _maxTemperature = 0;
+  int _minTemperature = 0;
 
   void getWeather() {
     try {
-      final weatherCondition = YumemiWeather().fetchThrowsWeather('tokyo');
+      const requestJsonString = '''
+        {
+          "area": "tokyo",
+          "date": "2020-04-01T12:00:00+09:00"
+        }''';
+      final jsonString = YumemiWeather().fetchWeather(requestJsonString);
+      final weatherCondition = jsonDecode(jsonString) as Map<String, dynamic>;
+
       if (!mounted) {
         return;
       }
       setState(() {
-        _weather = weatherCondition;
+        _weather = weatherCondition['weather_condition'] as String;
+        _maxTemperature = weatherCondition['max_temperature'] as int;
+        _minTemperature = weatherCondition['min_temperature'] as int;
       });
     } on YumemiWeatherError catch (error) {
       if (!mounted) {
@@ -68,20 +81,20 @@ class _MainAppState extends State<WeatherView> {
                         ? SvgPicture.asset('assets/$_weather.svg')
                         : const Placeholder(),
                   ),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 16),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
                         Text(
-                          '** ℃',
+                          '$_minTemperature ℃',
                           textAlign: TextAlign.center,
-                          style: TextStyle(color: Colors.blue),
+                          style: const TextStyle(color: Colors.blue),
                         ),
                         Text(
-                          '** ℃',
+                          '$_maxTemperature ℃',
                           textAlign: TextAlign.center,
-                          style: TextStyle(color: Colors.red),
+                          style: const TextStyle(color: Colors.red),
                         ),
                       ],
                     ),
